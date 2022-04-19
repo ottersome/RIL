@@ -3,7 +3,7 @@
 #include <iostream>
 #include <tuple>
 
-#include "main.h"
+#include "python_packer.h"
 #include "matrix.h"
 
 
@@ -39,7 +39,7 @@ Matrix multiply_mkl(Matrix &m1, const Matrix &m2){
     return m1.multiply_mkl(m2);
 }
 
-PYBIND11_MODULE(_matrix, m) {
+PYBIND11_MODULE(rilib, m) {
 
     py::class_<Matrix>(m, "Matrix")
         .def(py::init<size_t, size_t>())
@@ -75,4 +75,7 @@ PYBIND11_MODULE(_matrix, m) {
     m.def("multiply_naive",&multiply_naive,"Naive multiplication");
     m.def("multiply_mkl",&multiply_mkl,"Multiply using MKL method");
     m.def("multiply_tile",&multiply_tile,"Multiply using Tile method");
+
+    py::module filters  m.def_submodule("filters","Handles all filtering methods");
+    filters.def("Filters")
 }

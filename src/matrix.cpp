@@ -5,11 +5,11 @@
 #include <pybind11/pybind11.h>
 #include <algorithm>
 #include <math.h>
-#ifdef __unix__
-#include "mkl.h"
-#else
-#include "f77blas.h"
-#endif
+// #ifdef __unix__
+// #include "mkl.h"
+// #else
+// #include "f77blas.h"
+// #endif
 
 namespace py = pybind11;
 
@@ -17,34 +17,37 @@ namespace py = pybind11;
 
 
 Matrix Matrix::multiply_mkl(const Matrix & mat2) const{ 
-    if (this->ncol != mat2.nrow)
-    {
-        throw std::out_of_range(
-            "the number of first matrix column "
-            "differs from that of second matrix row");
-    }
+    //TODO remove this
+    
+   
+    // if (this->ncol != mat2.nrow)
+    // {
+    //     throw std::out_of_range(
+    //         "the number of first matrix column "
+    //         "differs from that of second matrix row");
+    // }
     Matrix ret(this->nrow, mat2.ncol);
-
-    //TODO, not so sure about teh values of these alphas
-    cblas_dgemm(
-            CblasRowMajor,
-            CblasNoTrans,
-            CblasNoTrans,
-            this->nrow,
-            mat2.ncol,
-            this->ncol,
-            1.0,
-            this->m_buffer,
-            this->m_ncol,
-            mat2.data(),
-            mat2.ncol,
-            0.0,
-            ret.data(),
-            ret.ncol
-            );
-
+    //
+    // //TODO, not so sure about teh values of these alphas
+    // cblas_dgemm(
+    //         CblasRowMajor,
+    //         CblasNoTrans,
+    //         CblasNoTrans,
+    //         this->nrow,
+    //         mat2.ncol,
+    //         this->ncol,
+    //         1.0,
+    //         this->m_buffer,
+    //         this->m_ncol,
+    //         mat2.data(),
+    //         mat2.ncol,
+    //         0.0,
+    //         ret.data(),
+    //         ret.ncol
+    //         );
+    //
     return ret;
-
+    //
 }
 Matrix Matrix::multiply_naive(const Matrix & mat2) const
 {
