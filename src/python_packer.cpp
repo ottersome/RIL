@@ -4,6 +4,7 @@
 #include <tuple>
 
 #include "python_packer.h"
+#include "filters.h"
 #include "matrix.h"
 
 
@@ -76,6 +77,6 @@ PYBIND11_MODULE(rilib, m) {
     m.def("multiply_mkl",&multiply_mkl,"Multiply using MKL method");
     m.def("multiply_tile",&multiply_tile,"Multiply using Tile method");
 
-    py::module filters  m.def_submodule("filters","Handles all filtering methods");
-    filters.def("Filters")
+    // py::module filters = m.def_submodule("filters","Handles all filtering methods");
+    // filters.def("Filters", &F)
 }
