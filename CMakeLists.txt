@@ -3,7 +3,7 @@ project (rilib VERSION 0.1 DESCRIPTION "A general purpose image processing libra
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(SOURCE
-    src/matrix.cpp
+    src/image.cpp
     src/python_packer.cpp
     )
 
@@ -14,7 +14,7 @@ find_package(Python COMPONENTS Interpreter Development REQUIRED)
 add_subdirectory(pybind11)
 
 message("1 CMake module path is now ${CMAKE_MODULE_PATH}")
-pybind11_add_module(rilib src/python_packer.cpp src/matrix.cpp)
+pybind11_add_module(rilib src/python_packer.cpp src/image.cpp)
 # add_library(rilib SHARED
 #     Python.h
 #     "${SOURCE}"

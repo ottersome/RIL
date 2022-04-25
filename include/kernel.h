@@ -1,10 +1,10 @@
 #pragma once
-#include "matrix.h"
+#include "image.h"
 
-class Kernel: public Matrix{
+class Kernel: public Image{
 
     Kernel(size_t nrow, size_t ncol)
-        : Matrix(nrow,ncol) { }
+        : Image(nrow,ncol,1) { }
 
     void decomposition();
     void padding();
