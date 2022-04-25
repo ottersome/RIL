@@ -83,12 +83,20 @@ Matrix::Matrix(size_t nrow, size_t ncol)
     reset_buffer(nrow, ncol);
 }
 
-Matrix::Matrix(size_t nrow, size_t ncol, std::vector<double> const & vec)
-    : m_nrow(nrow),m_ncol(ncol),nrow(m_nrow),ncol(m_ncol)
+//Matrix::Matrix(size_t nrow, size_t ncol, std::vector<double> const & vec)
+    //: m_nrow(nrow),m_ncol(ncol),nrow(m_nrow),ncol(m_ncol)
 
+//{
+    //reset_buffer(nrow, ncol);
+    //(*this) = vec;
+//}
+
+Matrix::Matrix(size_t nrow, size_t ncol, const double * ptr)
+    : m_nrow(nrow),m_ncol(ncol),nrow(m_nrow),ncol(m_ncol)
 {
     reset_buffer(nrow, ncol);
-    (*this) = vec;
+    std::memcpy(m_buffer,ptr,nrow*ncol*sizeof(double));
+
 }
 
 Matrix & Matrix::operator=(std::vector<double> const & vec)
@@ -251,3 +259,18 @@ void Matrix::reset_buffer(size_t o_nrow, size_t o_ncol)
     m_ncol = o_ncol;
 }
 
+Matrix MatrixSpace::matrix_from_pybuffer(py::buffer &b){
+    //Get info 
+    py::buffer_info info = b.request();
+    std::cout << "Creating from buffer object"<<std::endl;
+
+    //Sanity Checks
+    if(info.format != py::format_descriptor<double>::format()){
+        std::string error_msg = "Expected Matrix of type double, got : "+info.format;
+        throw std::runtime_error(error_msg);
+    }
+    if(info.ndim != 2)
+        throw std::runtime_error("Incompatible Dimensions.");
+
+    return Matrix(info.shape[0],info.shape[1],static_cast<const double*>(info.ptr));
+}

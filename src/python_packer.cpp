@@ -1,10 +1,11 @@
+#include <pybind11/attr.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
 #include <iostream>
 #include <tuple>
 
 #include "python_packer.h"
-#include "filters.h"
+#include "filters.hpp"
 #include "matrix.h"
 
 
@@ -42,7 +43,17 @@ Matrix multiply_mkl(Matrix &m1, const Matrix &m2){
 
 PYBIND11_MODULE(rilib, m) {
 
-    py::class_<Matrix>(m, "Matrix")
+    py::class_<Matrix>(m, "Matrix",py::buffer_protocol())
+        .def_buffer([](Matrix &m) -> py::buffer_info {
+                return py::buffer_info(
+                        m.data(),
+                        sizeof(double),
+                        py::format_descriptor<double>::format(),
+                        2,
+                        {m.nrow,m.ncol},
+                        {sizeof(double)*m.nrow,sizeof(double)}
+                        );
+                })
         .def(py::init<size_t, size_t>())
         .def("print_vals",&Matrix::print_vals)
         .def(py::self == py::self)
@@ -76,6 +87,7 @@ PYBIND11_MODULE(rilib, m) {
     m.def("multiply_naive",&multiply_naive,"Naive multiplication");
     m.def("multiply_mkl",&multiply_mkl,"Multiply using MKL method");
     m.def("multiply_tile",&multiply_tile,"Multiply using Tile method");
+    m.def("matrix_from_pybuffer",&MatrixSpace::matrix_from_pybuffer,"Get Matrix from Python Buffer Object");
 
     // py::module filters = m.def_submodule("filters","Handles all filtering methods");
     // filters.def("Filters", &F)

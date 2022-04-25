@@ -7,8 +7,8 @@ set(SOURCE
     src/python_packer.cpp
     )
 
-find_package(PythonInterp 3.10 REQUIRED)
-find_package(PythonLibs 3.10 REQUIRED)
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+#find_package(PythonLibs 3.10 REQUIRED)
 # find_package(LAPACK REQUIRED)
 
 add_subdirectory(pybind11)

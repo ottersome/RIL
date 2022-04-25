@@ -4,7 +4,10 @@
 #include <cmath>
 #include <iostream> 
 #include <chrono>
+#include <pybind11/pybind11.h>
+
 using namespace std::chrono;
+namespace py = pybind11;
 
 #define EQ_DIFF 1.0e-5
 
@@ -23,7 +26,8 @@ public:
 
 
     Matrix(size_t nrow, size_t ncol);
-    Matrix(size_t nrow, size_t ncol, std::vector<double> const & vec);
+    //Matrix(size_t nrow, size_t ncol, std::vector<double> const & vec);
+    Matrix(size_t nrow, size_t ncol, const double * vec);
 
     Matrix & operator=(std::vector<double> const & vec);
     Matrix(Matrix const & other);
@@ -134,3 +138,11 @@ public:
 
 };
 
+//TODO use better design patters then this. You are drunk
+namespace MatrixSpace{
+    //Bufffer Initializer
+
+    //TODO make overall better
+    Matrix matrix_from_pybuffer(py::buffer &b);
+
+};
