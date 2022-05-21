@@ -1,0 +1,14 @@
+# For now we focus on mac/unix-like
+# We also search for OpenCL in the NVIDIA SDK default location
+FIND_PATH(OPENCL_INCLUDE_DIR CL/cl.h /opt/AMDAPPSDK-2.9-1/include/ )
+FIND_LIBRARY(OPENCL_LIBRARIES OpenCL 
+    ENV LD_LIBRARY_PATH
+)
+
+SET( OPENCL_FOUND "NO" )
+IF(OPENCL_LIBRARIES )
+    SET( OPENCL_FOUND "YES" )
+ENDIF(OPENCL_LIBRARIES)
+MARK_AS_ADVANCED(
+  OPENCL_INCLUDE_DIR
+)

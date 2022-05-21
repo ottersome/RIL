@@ -141,5 +141,11 @@ public:
     //Info
     void print_vals();
 
+    //By doin a static verison we promise we wont change any instance members
+    //yet we should still have access to the buffer of the one being bassed
+    static void get_yuv(){
+
+    }
+
 };
 

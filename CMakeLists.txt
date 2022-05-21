@@ -8,6 +8,7 @@ set(SOURCE
     )
 
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
+find_package(OPENCL REQUIRED) #TODO find an alternative in case lacking
 #find_package(PythonLibs 3.10 REQUIRED)
 # find_package(LAPACK REQUIRED)
 
@@ -15,19 +16,24 @@ add_subdirectory(pybind11)
 
 message("1 CMake module path is now ${CMAKE_MODULE_PATH}")
 pybind11_add_module(rilib src/python_packer.cpp src/image.cpp)
-# add_library(rilib SHARED
-#     Python.h
-#     "${SOURCE}"
-#     )
 
-# if(MKL_FOUND)
-#     target_include_directories(rilib PUBLIC ${MKL_INCLUDE_DIRS})
-#     target_link_libraries(rilib ${MKL_CORE_LIBRARY})
-# else()
-#     message(WARNING "MKL not found")
-# endif()
+# Add Choices for Debugging and Release Compilations
 
 target_include_directories(rilib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(rilib PUBLIC "${PYTHON_INCLUDE_DIRS}")
+target_include_directories(rilib PUBLIC  ${OpenCL_INCLUDE_DIRS} )
 
+target_link_libraries(rilib PUBLIC ${OpenCL_LIBRARIES})
+
+#file(GLOB_RECURSE ${MISC_SOURCE_FILES} "./playground/*.cpp")
+file(GLOB MISC_SOURCE_FILES playground/*.cpp )
+
+# For test files
+message("Adding Extra Executables")
+foreach(SOURCE_PATH ${MISC_SOURCE_FILES})
+    message("Adding ${SOURCE_PATH}")
+    get_filename_component(EXECUTABLE_NAME ${SOURCE_PATH} NAME_WE)
+    add_executable(${EXECUTABLE_NAME} ${SOURCE_PATH})
+
+endforeach(SOURCE_PATH ${MISC_SOURCE_FILES})
 
