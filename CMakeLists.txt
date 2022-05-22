@@ -2,13 +2,16 @@ cmake_minimum_required (VERSION 3.9)
 project (rilib VERSION 0.1 DESCRIPTION "A general purpose image processing library" LANGUAGES CXX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+# Adding my COmpile Commands
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 set(SOURCE
     src/image.cpp
     src/python_packer.cpp
     )
 
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
-find_package(OPENCL REQUIRED) #TODO find an alternative in case lacking
+# set(CMAKE_PREFIX_PATH $ENV{HOME}/Projects/Libraries/OpenCL/share/cmake/OpenCL)
+find_package(OpenCL REQUIRED) #TODO find an alternative in case lacking
 #find_package(PythonLibs 3.10 REQUIRED)
 # find_package(LAPACK REQUIRED)
 
@@ -21,9 +24,11 @@ pybind11_add_module(rilib src/python_packer.cpp src/image.cpp)
 
 target_include_directories(rilib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(rilib PUBLIC "${PYTHON_INCLUDE_DIRS}")
-target_include_directories(rilib PUBLIC  ${OpenCL_INCLUDE_DIRS} )
+target_include_directories(rilib PUBLIC  ${OPENCL_INCLUDE_DIR} )
 
-target_link_libraries(rilib PUBLIC ${OpenCL_LIBRARIES})
+
+message("Do we ally have OpenCL includes ? ${OPENCL_INCLUDE_DIR}")
+target_link_libraries(rilib PUBLIC ${OPENCL_LIBRARIES})
 
 #file(GLOB_RECURSE ${MISC_SOURCE_FILES} "./playground/*.cpp")
 file(GLOB MISC_SOURCE_FILES playground/*.cpp )
@@ -34,6 +39,10 @@ foreach(SOURCE_PATH ${MISC_SOURCE_FILES})
     message("Adding ${SOURCE_PATH}")
     get_filename_component(EXECUTABLE_NAME ${SOURCE_PATH} NAME_WE)
     add_executable(${EXECUTABLE_NAME} ${SOURCE_PATH})
+
+    target_include_directories(${EXECUTABLE_NAME} PUBLIC  ${OPENCL_INCLUDE_DIR} )
+    target_link_libraries(${EXECUTABLE_NAME} PUBLIC ${OPENCL_LIBRARIES})
+    target_compile_definitions(${EXECUTABLE_NAME} PUBLIC CL_HPP_TARGET_OPENCL_VERSION=300)
 
 endforeach(SOURCE_PATH ${MISC_SOURCE_FILES})
 
