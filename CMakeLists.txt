@@ -4,6 +4,7 @@ project (rilib VERSION 0.1 DESCRIPTION "A general purpose image processing libra
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # Adding my COmpile Commands
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+set(CMAKE_BUILD_TYPE "Debug")
 set(SOURCE
     src/image.cpp
     src/python_packer.cpp
@@ -32,6 +33,11 @@ target_link_libraries(rilib PUBLIC ${OPENCL_LIBRARIES})
 
 #file(GLOB_RECURSE ${MISC_SOURCE_FILES} "./playground/*.cpp")
 file(GLOB MISC_SOURCE_FILES playground/*.cpp )
+
+# Include CMake Dependencies here
+# TODO, but I'll  organize that later
+include(cmake/Dependencies.cmake)
+
 
 # For test files
 message("Adding Extra Executables")

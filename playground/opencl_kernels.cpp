@@ -1,14 +1,3 @@
-// #defin CL_TARGET_OPENCL_VERSION 120
-#include <CL/opencl.hpp>
-#include <iostream>
-#include <vector>
-#define SIZE 100
-
-std::string program_string{
-R"(
-
-)"
-};
 
 int main(){
 
@@ -30,14 +19,29 @@ int main(){
     cl::CommandQueue queue(context);
 
     cl::Program program(context,program_string,true);
+    program.build();
     //Set up Memory  Objects
     
     using iterator_type = std::vector<double>::iterator;
     //I belive these ones fetch their own context
-    cl::Buffer d_a(h_a.begin(), h_a.end(),true);
-    cl::Buffer d_b(h_b.begin(), h_b.end(),true);
+    cl::Buffer d_a(context,h_a.begin(), h_a.end(),true);
+    cl::Buffer d_b(context,h_b.begin(), h_b.end(),true);
     cl::Buffer d_c(context, CL_MEM_READ_WRITE,sizeof(double)*SIZE);
 
-    // cl::copy();
+    //Create Functo
+    // THis method mighht be deprecarted though, not so sure
+    //  Yeah, use a KernelFunctor Instead
+    cl::compatibility::make_kernel<cl::Buffer,cl::Buffer,cl::Buffer> 
+        simple_kernel(program,"simple");
+
+    //SPecify Dimenions
+    cl::NDRange global(1024); 
+    cl::NDRange local(64); 
+
+    simple_kernel(cl::EnqueueArgs(queue,global),d_a,d_b,d_c);
+
+
+    //Get Back Result
+    cl::copy(queue,d_c,h_c.begin(),h_c.end());
 
 }

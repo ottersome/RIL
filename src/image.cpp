@@ -12,9 +12,13 @@
 // #endif
 
 namespace py = pybind11;
+using namespace RIL;
 
 #include "image.h"
 
+
+Image Image::to_YUV(Image input_image){
+}
 
 /*********************
 * Constructors
