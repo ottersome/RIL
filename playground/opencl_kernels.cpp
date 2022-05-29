@@ -1,4 +1,10 @@
+#include <vector>
+#include <iostream>
+#include <CL/opencl.hpp>
+#include <fstream>
+#include <sstream>
 
+#define SIZE 500
 int main(){
 
     std::vector<double> h_a(SIZE), h_b(SIZE), h_c(SIZE);
@@ -18,7 +24,11 @@ int main(){
     //Create Command QUeue
     cl::CommandQueue queue(context);
 
-    cl::Program program(context,program_string,true);
+    std::stringstream program_string;
+    std::ifstream t("../src/kernels/matmul.c");
+    program_string << t.rdbuf();
+
+    cl::Program program(context,program_string.str(),true);
     program.build();
     //Set up Memory  Objects
     

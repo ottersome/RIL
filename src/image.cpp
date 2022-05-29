@@ -5,6 +5,7 @@
 #include <pybind11/pybind11.h>
 #include <algorithm>
 #include <math.h>
+#include "image.h"
 // #ifdef __unix__
 // #include "mkl.h"
 // #else

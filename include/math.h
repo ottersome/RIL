@@ -1,5 +1,5 @@
 # pragma once
-#include "image.h"
+//#include "image.h"
 
 // namespace math{
 //     Image addition(Image const & A, Image const & B){

@@ -75,6 +75,8 @@ namespace RIL{
             //template<size_t ts_bytes>
             Image multiply_tile(const Image & mat2, size_t ts) const{
 
+                return Image(1,1,1);//Just for now
+
                 //// auto start = high_resolution_clock::now();
                 //if (this->ncol != mat2.nrow)
                 //{
@@ -84,7 +86,7 @@ namespace RIL{
                 //}
 
                 ////Create matrix to return and zero out its elements
-                //Image retMat(this->nrow, mat2.ncol);
+                //Image retMat(this->nrow, mat2.ncol,3);
                 //retMat.zero_out();
 
                 //size_t tile_vbound =0, tile_hbound=0,op_bound=0;
@@ -144,12 +146,6 @@ namespace RIL{
 
             //Info
             void print_vals();
-
-            //By doin a static verison we promise we wont change any instance members
-            //yet we should still have access to the buffer of the one being bassed
-            static void get_yuv(){
-
-            }
 
     };
 
