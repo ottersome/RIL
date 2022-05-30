@@ -5,7 +5,7 @@
 #include <pybind11/pybind11.h>
 #include <algorithm>
 #include <math.h>
-#include "image.h"
+#include "data/image.h"
 // #ifdef __unix__
 // #include "mkl.h"
 // #else
@@ -15,7 +15,7 @@
 namespace py = pybind11;
 using namespace RIL;
 
-#include "image.h"
+#include "data/image.h"
 
 
 Image Image::to_YUV(Image input_image){

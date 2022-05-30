@@ -1,7 +1,5 @@
-__kernel void vector_add(__global const int *A, __global const int *B, __global int * c){
-
-  int i  = get_global_id(0);
-
-   C[i} = A[i] + B[i];
+__kernel void vadd(__global const float *A, __global const float *B, __global float * c){
+   int i  = get_global_id(0);
+   c[i] = A[i] + B[i];
 
 }

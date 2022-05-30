@@ -1,6 +1,6 @@
 #pragma once
-#include "image.h"
-#include "kernel.h"
+#include "data/image.h"
+#include "data/kernel.h"
 #include <stdexcept>
 
 namespace Filters{

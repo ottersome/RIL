@@ -5,9 +5,9 @@
 #include <tuple>
 
 #include "python_packer.h"
-#include "filters.hpp"
-#include "image.h"
-#include "kernel.h"
+#include "algos/filters.hpp"
+#include "data/image.h"
+#include "data/kernel.h"
 
 
 namespace py = pybind11;
