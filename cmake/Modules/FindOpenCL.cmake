@@ -1,20 +1,24 @@
 # For now we focus on mac/unix-like
 # We also search for OpenCL in the NVIDIA SDK default location
-set(CUSTOM_DIR  $ENV{HOME}/Projects/Libraries/OpenCL/include/)
-set(CUSTOM_DIR_LB $ENV{HOME}/Projects/Libraries/OpenCL/lib/)
+# set(CUSTOM_DIR  $ENV{HOME}/Projects/Libraries/OpenCL/include/)
+set(CUSTOM_DIR  /usr/include/)
+set(CUSTOM_DIR_LB /usr/lib/)
 message("My HOME VARIABLE IS : ${CUSTOM_DIR}")
-FIND_PATH(OPENCL_INCLUDE_DIR CL/opencl.hpp
+FIND_PATH(OPENCL_INCLUDE_DIR CL/cl_gl.h
     HINTS ${CUSTOM_DIR}
     )
-message("OPENCL_INCLUDE_DIR: ${OPENCL_INCLUDE_DIR}")
-FIND_LIBRARY(OPENCL_LIBRARIES OpenCL 
+FIND_LIBRARY(OPENCL_LIBRARY OpenCL 
+    PATHS CUSTOM_DIR_LB
     ENV LD_LIBRARY_PATH
 )
 
 SET( OPENCL_FOUND "NO" )
-IF(OPENCL_LIBRARIES )
+IF(OPENCL_LIBRARY )
     SET( OPENCL_FOUND "YES" )
-ENDIF(OPENCL_LIBRARIES)
+    message("OPENCL_INCLUDE_DIR: ${OPENCL_INCLUDE_DIR}")
+    message("OPENCL_LIBRARIES : ${OPENCL_LIBRARY}")
+ENDIF(OPENCL_LIBRARY)
 MARK_AS_ADVANCED(
   OPENCL_INCLUDE_DIR
+  OPENCL_LIBRARY
 )
