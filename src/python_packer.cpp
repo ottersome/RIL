@@ -44,7 +44,9 @@ Image multiply_mkl(Image &m1, const Image &m2){
 
 PYBIND11_MODULE(rilib, m) {
 
-    py::class_<Image>(m, "Image",py::buffer_protocol())
+    auto dtype = Image::DataType::RGBA_8BIT;
+
+    py::class_<Image, std::shared_ptr<Image>>(m, "Image",py::buffer_protocol())
         .def_buffer([](Image &m) -> py::buffer_info {
                 return py::buffer_info(
                         m.data(),

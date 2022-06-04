@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <pybind11/numpy.h>
 #include <vector>
 #include <stdexcept>
 #include <pybind11/pybind11.h>
@@ -18,17 +19,16 @@ using namespace RIL;
 #include "data/image.h"
 
 
-Image Image::to_YUV(Image input_image){
-}
 
 /*********************
 * Constructors
 *********************/
 
-Image::Image(size_t o_nrow, size_t o_ncol,size_t o_nchan)
+Image::Image(size_t o_nrow, size_t o_ncol,size_t o_nchan, DataType dtype)
     : m_nrow(o_nrow),m_ncol(o_ncol),m_nchan(o_nchan),
     nrow(m_nrow),ncol(m_ncol),nchan(m_nchan)
 {
+    _data_type = dtype;
     reset_buffer(nrow, ncol,m_nchan);
 }
 //Matrix::Matrix(size_t nrow, size_t ncol, std::vector<double> const & vec)
@@ -39,53 +39,35 @@ Image::Image(size_t o_nrow, size_t o_ncol,size_t o_nchan)
     //(*this) = vec;
 //}
 
-Image::Image(size_t o_nrow, size_t o_ncol, size_t o_nchan, const double * ptr)
-    : m_nrow(o_nrow),m_ncol(o_ncol),m_nchan(o_nchan),
-    nrow(m_nrow),ncol(m_ncol),nchan(m_nchan)
-{
-    reset_buffer(o_nrow, o_ncol,o_nchan);
-    //TODO this might not work at all. Might need a for loop
-    std::memcpy(m_buffer,ptr,nrow*ncol*nchan*sizeof(double));
-    for(size_t i =0 ;i<o_nrow;i++){
-        for(size_t j =0 ;j<o_ncol;j++){
-            for(size_t k = 0;k<o_nchan;k++){
-                //(*this)(i,j,k) = ptr[i*ncol*nchan+j*nchan+k]/255;
-                (*this)(i,j,k) /= 255;
-            }
-        }
-    }
+//TODO : This might end up being a numpy ptr instead of a double ptr
+// Image::Image(size_t o_nrow, size_t o_ncol, size_t o_nchan, const double * ptr,DataType dtype)
+//     : m_nrow(o_nrow),m_ncol(o_ncol),m_nchan(o_nchan),
+//     nrow(m_nrow),ncol(m_ncol),nchan(m_nchan)
+// {
+//     reset_buffer(o_nrow, o_ncol,o_nchan);
+//     //TODO this might not work at all. Might need a for loop
+//     std::memcpy(m_buffer,ptr,nrow*ncol*nchan*sizeof(double));
+//     for(size_t i =0 ;i<o_nrow;i++){
+//         for(size_t j =0 ;j<o_ncol;j++){
+//             for(size_t k = 0;k<o_nchan;k++){
+//                 //(*this)(i,j,k) = ptr[i*ncol*nchan+j*nchan+k]/255;
+//                 (*this)(i,j,k) /= 255;
+//             }
+//         }
+//     }
+//
+// }
 
-}
 
-Image & Image::operator=(std::vector<double> const & vec)
-{
-    //TODO maybe revise this
-    std::cerr<<"FAILURE: operator not yet part of implementation!!"<<std::endl;
-    if (size() != vec.size())
-    {
-        throw std::out_of_range("number of elements mismatch");
-    }
-
-    size_t l = 0;
-    for (size_t i=0; i<nrow; ++i)
-    {
-        for (size_t j=0; j<ncol; ++j)
-        {
-            for(size_t k=0;k<nchan;k++){
-                (*this)(i,j,k) = vec[l];
-                ++l;
-            }
-        }
-    }
-
-    return *this;
-}
-
-Image::Image(Image const & other)
+Image::Image(Image const & other, DataType dtype)
     : m_nrow(other.nrow),m_ncol(other.ncol),m_nchan(other.nchan),
     nrow(m_nrow),ncol(m_ncol),nchan(m_nchan)
-
 {
+
+    //get cpp_dtype
+    getCppType(dtype)
+
+    this->_data_type = other._data_type;
     reset_buffer(other.nrow, other.ncol,other.nchan);
     for (size_t i=0; i<nrow; ++i)
     {
@@ -93,7 +75,7 @@ Image::Image(Image const & other)
         {
             for (size_t k=0; j<nchan; ++k)
             {
-                (*this)(i,j,k) = other(i,j,k);
+                (*this)<double>(i,j,k) = other<double>(i,j,k);
             }
         }
     }
@@ -181,7 +163,7 @@ Image::~Image()
 size_t Image::size() const { return m_ncol*m_nrow; }
 
 //Also never call this
-double Image::buffer(size_t i) const { return m_buffer[i]; }
+// double Image::buffer(size_t i) const { return m_buffer[i]; }
 
 std::vector<double> Image::buffer_vector() const
 {
@@ -190,10 +172,10 @@ std::vector<double> Image::buffer_vector() const
 }
 
 
-double * Image::data(){
-    return m_buffer;
+void * Image::data(){
+    return m_buffer.data();
 }
-double * Image::data() const {
+void * Image::data() const {
     return m_buffer;
 }
 void Image::zero_out(){
@@ -252,9 +234,17 @@ size_t Image::index(size_t row, size_t col) const
 
 void Image::reset_buffer(size_t o_nrow, size_t o_ncol, size_t o_nchannels)
 {
-    if (m_buffer) { delete[] m_buffer; }
+    //Handle Datatype
+    using cpp_dtype = getCppType(_data_type);
+    
+    if (m_buffer!==nullptr) {
+        m_buffer.swap(std::make_shared<cpp_dtype>());
+    }
     const size_t nelement = o_nrow * o_ncol* o_nchannels;
-    if (nelement) { m_buffer = new double[nelement]; }
+    if (nelement) { 
+        m_buffer = new double[nelement]; 
+
+    }
     else          { m_buffer = nullptr; }
     m_nrow = o_nrow;
     m_ncol = o_ncol;
@@ -333,4 +323,15 @@ Image Image::get_bw(){
         }
     }
     return retimg;
+}
+//TODO: make sure we tell numpy to do reference count on m_buffer
+template<class T> 
+py::array_t<T> Image::get_ndarray(){
+    return py::array_t<T>(
+            {m_nrow,m_ncol},// Shape
+            {m_ncol*sizeof(T),sizeof(T)},// Strides
+            m_buffer,// Data Pointer
+            py::cast(m_buffer)
+            // py::none() //Lets assume that we wont use the np version when this c++ instance doesnt exist. If not use above
+            );
 }

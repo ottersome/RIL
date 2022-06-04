@@ -1,39 +1,48 @@
 #pragma once
+#include <memory>
 #include <stdio.h>
 #include <vector>
 #include <cmath>
 #include <iostream> 
 #include <chrono>
 #include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
 
 using namespace std::chrono;
 namespace py = pybind11;
 
 #define EQ_DIFF 1.0e-5
 
+
+//Lets do a macro to do handle the above
+
+//We want the data of this to be flexible
+
+#define getCppTypeCase(DType)\
+    case RGBA_8BIT: using cpp_dtype =  std::uint32_t; break;\
+    case ABGR_8BIT: using cpp_dtype = ::uint32_t; break;
+
+#define getCppType(DType) \
+        getCTypeCase(DType)\
+    }
+
 namespace RIL{
 
     class Image {
-        private:
-
-            size_t index(size_t row, size_t col) const;
-
-            void reset_buffer(size_t nrow, size_t ncol, size_t nchannels);
-
-            size_t m_nrow = 0;
-            size_t m_ncol = 0;
-            size_t m_nchan = 0;
-            double * m_buffer = nullptr;
 
         public:
 
+            enum DataType{
+                RGBA_8BIT,
+                ABGR_8BIT//Some Nonsense here
+            };
 
             static Image image_from_pybuffer(py::buffer &b);
-            Image(size_t nrow, size_t ncol,size_t channels);
+            Image(size_t nrow, size_t ncol,size_t channels = 3, DataType dtype = RGBA_8BIT);
             //Matrix(size_t nrow, size_t ncol, std::vector<double> const & vec);
-            Image(size_t nrow, size_t ncol, size_t channels,const double * vec);
+            // Image(size_t nrow, size_t ncol, size_t channels,const double * vec);
 
-            Image & operator=(std::vector<double> const & vec);
+            // Image & operator=(std::vector<double> const & vec);
             Image(Image const & other);
             Image & operator=(Image const & other);
             Image(Image && other);
@@ -42,11 +51,16 @@ namespace RIL{
 
             Image get_bw();
 
-            double const & operator() (size_t row, size_t col,size_t chan) const{
-                return m_buffer[row*m_ncol*nchan + col*m_nchan + chan];
+
+            template<typename T>
+            T const & operator() (size_t row, size_t col,size_t chan) const{
+                auto buff = static_cast<T>(m_buffer);
+                return buff[row*m_ncol*nchan + col*m_nchan + chan];
             };
+            template<typename T>
             double & operator() (size_t row, size_t col,size_t chan){
-                return m_buffer[row*m_ncol*nchan + col*m_nchan + chan];
+                const auto buff = static_cast<T>(m_buffer);
+                return buff[row*m_ncol*nchan + col*m_nchan + chan];
             }
 
             bool operator==(const Image & other) const;
@@ -67,6 +81,9 @@ namespace RIL{
             double buffer(size_t i) const; std::vector<double> buffer_vector() const;
 
             static Image to_YUV(Image input_image);
+            
+            template<class T>
+            py::array_t<T> get_ndarray();
 
             //Arithmetic Operations
             Image multiply_naive(const Image & mat2) const;
@@ -137,9 +154,12 @@ namespace RIL{
 
             }
 
+
             //Return pointer to Data
-            double * data();
-            double * data() const;
+            template<class T>
+            T * data();
+            template<class T>
+            T * data() const;
 
             //Helpers
             void zero_out();
@@ -147,6 +167,19 @@ namespace RIL{
             //Info
             void print_vals();
 
+        protected:
+
+            size_t index(size_t row, size_t col) const;
+
+            void reset_buffer(size_t nrow, size_t ncol, size_t nchannels);
+
+            size_t m_nrow = 0;
+            size_t m_ncol = 0;
+            size_t m_nchan = 0;
+            // double * m_buffer = nullptr;
+            std::shared_ptr<void> m_buffer = nullptr;
+            //This helps us know how to deal with the data when processing it
+            DataType _data_type;
     };
 
 }

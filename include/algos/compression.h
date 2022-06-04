@@ -1,3 +1,5 @@
-#include "image.h"
+#pragma once
+
+#include "data/image.h"
 
 
