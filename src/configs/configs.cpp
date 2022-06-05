@@ -25,3 +25,7 @@ Configs *Configs::Get(){
     }
     return _instance;
 }
+
+void Configs::load_data(){
+    _kernelpath = "./";
+}

@@ -2,8 +2,12 @@ cmake_minimum_required (VERSION 3.9)
 project (rilib VERSION 0.1 DESCRIPTION "A general purpose image processing library" LANGUAGES CXX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(KERNELS_PATH "${CMAKE_SOURCE_DIR}/src/kernels")
+set(KERNELS 
+    "${KERNELS_PATH}/gaussian.cl"
+    )
 # Adding my COmpile Commands 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE "Debug")
 set(SOURCE
     src/image.cpp
@@ -19,7 +23,8 @@ find_package(OpenCL REQUIRED)
 
 add_subdirectory(pybind11)
 
-pybind11_add_module(rilib src/python_packer.cpp src/image.cpp)
+pybind11_add_module(rilib 
+    src/python_packer.cpp src/image.cpp src/algos/filters/guassian.cpp)
 
 # Add Choices for Debugging and Release Compilations
 
@@ -39,6 +44,8 @@ file(GLOB MISC_SOURCE_FILES playground/*.cpp )
 # TODO, but I'll  organize that later
 include(cmake/Dependencies.cmake)
 
+# Move Kernels to runnable directory
+configure_fiel()
 
 # For test files
 message("Adding Extra Executables")

@@ -2,8 +2,7 @@
 
 #define CL_TARGET_OPENCL_VERSION 300
 #include <string.h>
-#include <iostream>
-#include <fstream>
+#include <iostream> #include <fstream>
 #include <sstream>
 #include <vector>
 #define SIZE 10
